@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  mysql:
+    container_name: pfa-mysql
+    image: mysql:5.7
+    volumes:
+      - ./mysql/dbdata:/var/lib/mysql
+      - ./mysql:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_ROOT_PASSWORD=wowsuchsecret
+      - MYSQL_DATABASE=pfa
+    networks:
+      - app_network
+  app:
+    container_name: pfa-node
+    build: ./app
+    # image: he4dless/pfa-docker-desafio1-node
+    depends_on:
+      - mysql
+    expose:
+      - 3000
+    networks:
+      - app_network
+      - web_network
+  web:
+    container_name: pfa-nginx
+    # build: ./nginx
+    image: he4dless/pfa-docker-desafio1-nginx
+    networks:
+      - web_network
+    ports:
+      - 8000:80
+    depends_on:
+      - app
+networks:
+  app_network:
+    name: app_network
+  web_network:
+    name: web_network
